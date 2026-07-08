@@ -12,11 +12,9 @@ import (
 )
 
 func main() {
-	matches, err := filepath.Glob("config*.json")
-	if err == nil {
-		for _, f := range matches {
-			_ = os.Remove(f)
-		}
+	matches, _ := filepath.Glob("config*.json")
+	for _, f := range matches {
+		os.Remove(f)
 	}
 
 	vlessURL := flag.String("url", "", "VLESS link")
@@ -24,10 +22,10 @@ func main() {
 	threadCount := flag.Int("threads", 50, "Number of stress threads")
 	duration := flag.Int("duration", 0, "Duration in seconds (0 = infinite)")
 	numXray := flag.Int("instances", 10, "Number of xray-core processes")
+	insane := flag.Bool("insane", false, "Unlimited insane mode (no limits, no delays)")
 	flag.Parse()
 
 	var urls []string
-
 	if *vlessURL != "" {
 		urls = append(urls, *vlessURL)
 	} else if *listFile != "" {
@@ -48,7 +46,6 @@ func main() {
 			log.Printf("Parse error: %v", err)
 			continue
 		}
-
-		stressor.Run(cfg, *threadCount, *duration, *numXray)
+		stressor.Run(cfg, *threadCount, *duration, *numXray, *insane)
 	}
 }
